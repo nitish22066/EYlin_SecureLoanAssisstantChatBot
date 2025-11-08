@@ -2,31 +2,24 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, Send, ArrowRight } from "lucide-react";
+import { Home, Send, ArrowRight, Loader2 } from "lucide-react";
 import VoiceLanguageControls from "@/components/VoiceLanguageControls";
 import MessageBubble from "@/components/MessageBubble";
 import DocumentUpload from "@/components/DocumentUpload";
 import SanctionLetter from "@/components/SanctionLetter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Message {
   text: string;
   isUser: boolean;
+  timestamp: string;
 }
 
 interface ConversationPageProps {
   loanType: "car-loan" | "education-loan" | "business-loan" | "two-wheeler-loan" | "home-improvement" | "personal-loan" | "other-loan";
 }
-
-const conversationStarters: Record<string, string> = {
-  "car-loan": "Hi there! 🚗 That's exciting — a new ride coming up! Could you share approximately how much you're looking to borrow for your car?",
-  "education-loan": "Hey! 👋 That's awesome — investing in Data Science is a great move. Which institute or course are you enrolling in?",
-  "business-loan": "That's great to hear! 🍲 Please share your business name and loan amount.",
-  "two-wheeler-loan": "Hi! 🛵 Looking for a two-wheeler? Great choice! What's your budget for the vehicle?",
-  "home-improvement": "Hello! 🏠 Home improvements are always exciting! What kind of renovations are you planning?",
-  "personal-loan": "Hi there! 💰 I'm here to help with your personal loan. Could you tell me what you need the loan for?",
-  "other-loan": "Hello! 💡 I'm here to help you explore our loan options. Could you tell me what kind of loan you're looking for?",
-};
 
 export default function ConversationPage({ loanType }: ConversationPageProps) {
   const [, setLocation] = useLocation();
@@ -35,54 +28,62 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
   const [userInput, setUserInput] = useState("");
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const starter = conversationStarters[loanType] || conversationStarters["other-loan"];
+  const createConversationMutation = useMutation({
+    mutationFn: async (loanType: string) => {
+      return await apiRequest("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ loanType }),
+      });
+    },
+    onSuccess: (data: any) => {
+      setConversationId(data.conversationId);
+      setMessages([data.message]);
+    },
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ conversationId, text }: { conversationId: string; text: string }) => {
+      return await apiRequest(`/api/conversations/${conversationId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+    },
+    onSuccess: (data: any) => {
+      setMessages((prev) => [...prev, data.message]);
+      
+      const responseText = data.message.text.toLowerCase();
+      if (responseText.includes("upload") || responseText.includes("documents") || responseText.includes("kyc")) {
+        setTimeout(() => setShowDocUpload(true), 500);
+      }
+    },
+  });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMessages([{ text: starter, isUser: false }]);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [starter]);
+    createConversationMutation.mutate(loanType);
+  }, [loanType]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = () => {
-    if (!userInput.trim()) return;
+    if (!userInput.trim() || !conversationId || sendMessageMutation.isPending) return;
 
-    const userMessage = userInput;
-    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
+    const userMessage: Message = {
+      text: userInput,
+      isUser: true,
+      timestamp: new Date().toISOString(),
+    };
+    
+    setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
 
-    setTimeout(() => {
-      const response = getEylinResponse(userMessage, loanType, messages.length);
-      setMessages((prev) => [...prev, { text: response, isUser: false }]);
-      
-      if (response.toLowerCase().includes("upload") || response.toLowerCase().includes("documents")) {
-        setTimeout(() => setShowDocUpload(true), 500);
-      }
-    }, 1000);
-  };
-
-  const getEylinResponse = (userMessage: string, type: string, messageCount: number): string => {
-    const lowerMsg = userMessage.toLowerCase();
-
-    if (lowerMsg.includes("done") || lowerMsg.includes("uploaded") || lowerMsg.includes("submit")) {
-      return "Thanks, I've verified your details. 👍 Your application looks good! Let me process this and get back to you with an update shortly.";
-    }
-
-    if (messageCount <= 2) {
-      return "Perfect. And your monthly income range? (Just a rough number helps me find the right offer.)";
-    }
-    
-    if (messageCount <= 4) {
-      return "Great — that's a solid income! Let's proceed with your KYC. Please upload your required documents (PAN Card, Salary Slip, etc.).";
-    }
-
-    return "Thank you for providing that information. I'm processing your request. Is there anything else you'd like to know about this loan?";
+    sendMessageMutation.mutate({ conversationId, text: userInput });
   };
 
   const handleDocumentUpload = () => {
@@ -131,6 +132,13 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
 
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto px-4 py-6 max-w-3xl">
+          {createConversationMutation.isPending && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Starting conversation...</span>
+            </div>
+          )}
+
           {messages.map((message, index) => (
             <MessageBubble
               key={index}
@@ -138,6 +146,13 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
               isUser={message.isUser}
             />
           ))}
+
+          {sendMessageMutation.isPending && (
+            <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Eylin is typing...</span>
+            </div>
+          )}
 
           {showDocUpload && !showApproval && (
             <div className="mb-6 animate-in fade-in duration-300">
@@ -201,13 +216,19 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 placeholder={t("chat.placeholder")}
                 data-testid="input-message"
+                disabled={sendMessageMutation.isPending || createConversationMutation.isPending}
               />
               <Button
                 onClick={handleSend}
                 size="icon"
                 data-testid="button-send"
+                disabled={sendMessageMutation.isPending || createConversationMutation.isPending || !userInput.trim()}
               >
-                <Send className="h-4 w-4" />
+                {sendMessageMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
