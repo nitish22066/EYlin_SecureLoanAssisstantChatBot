@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DocumentUploadProps {
   label: string;
@@ -15,6 +16,7 @@ export default function DocumentUpload({
   acceptedFormats = ["PDF", "JPG", "PNG"],
   onUpload,
 }: DocumentUploadProps) {
+  const { t } = useLanguage();
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -73,10 +75,10 @@ export default function DocumentUpload({
           <Upload className="h-8 w-8 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium">
-              Drop files here or click to upload
+              {t("upload.drop")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Supported: {acceptedFormats.join(", ")}
+              {t("upload.supported")} {acceptedFormats.join(", ")}
             </p>
           </div>
         </label>

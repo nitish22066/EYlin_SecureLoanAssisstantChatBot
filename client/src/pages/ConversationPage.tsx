@@ -7,6 +7,7 @@ import VoiceLanguageControls from "@/components/VoiceLanguageControls";
 import MessageBubble from "@/components/MessageBubble";
 import DocumentUpload from "@/components/DocumentUpload";
 import SanctionLetter from "@/components/SanctionLetter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Message {
   text: string;
@@ -29,6 +30,7 @@ const conversationStarters: Record<string, string> = {
 
 export default function ConversationPage({ loanType }: ConversationPageProps) {
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
@@ -89,13 +91,13 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
   };
 
   const loanTitles: Record<string, string> = {
-    "car-loan": "Car Loan",
-    "education-loan": "Education Loan",
-    "business-loan": "Business Loan",
-    "two-wheeler-loan": "Two-Wheeler Loan",
-    "home-improvement": "Home Improvement Loan",
-    "personal-loan": "Personal Loan",
-    "other-loan": "Other Loan Types",
+    "car-loan": t("loan.car"),
+    "education-loan": t("loan.education"),
+    "business-loan": t("loan.business"),
+    "two-wheeler-loan": t("loan.twowheeler"),
+    "home-improvement": t("loan.home"),
+    "personal-loan": t("loan.personal"),
+    "other-loan": t("loan.other"),
   };
 
   const handleApproval = () => {
@@ -113,7 +115,7 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
               {loanTitles[loanType]}
             </h1>
             <p className="text-xs text-muted-foreground">
-              Chat with Eylin
+              {t("chat.with")}
             </p>
           </div>
           <Button
@@ -140,7 +142,7 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
           {showDocUpload && !showApproval && (
             <div className="mb-6 animate-in fade-in duration-300">
               <DocumentUpload
-                label="Upload Documents"
+                label={t("upload.label")}
                 acceptedFormats={["PDF", "JPG", "PNG"]}
               />
               <div className="mt-4 flex gap-2">
@@ -150,14 +152,14 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
                   variant="outline"
                   data-testid="button-submit-documents"
                 >
-                  Submit Documents
+                  {t("button.submit")}
                 </Button>
                 <Button
                   onClick={handleApproval}
                   className="flex-1"
                   data-testid="button-approve-demo"
                 >
-                  Demo Approval
+                  {t("button.demo")}
                 </Button>
               </div>
             </div>
@@ -173,16 +175,13 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
                 tenure={loanType === "car-loan" ? "48 months" : "60 months"}
               />
               <div className="mt-6 text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Would you like to return to the main menu to explore Track 1 or Track 2 again?
-                </p>
                 <Button
                   variant="outline"
                   onClick={() => setLocation("/")}
                   data-testid="button-return-menu"
                 >
                   <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
-                  Return to Main Menu
+                  {t("button.return")}
                 </Button>
               </div>
             </div>
@@ -200,7 +199,7 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Type your message..."
+                placeholder={t("chat.placeholder")}
                 data-testid="input-message"
               />
               <Button

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, FileText, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SanctionLetterProps {
   applicantName: string;
@@ -21,6 +22,7 @@ export default function SanctionLetter({
   tenure,
   onDownload,
 }: SanctionLetterProps) {
+  const { t } = useLanguage();
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
@@ -45,13 +47,13 @@ export default function SanctionLetter({
           </div>
           <div>
             <Badge className="mb-2" variant="default">
-              Approved
+              {t("approval.badge")}
             </Badge>
             <h2 className="text-2xl font-semibold">
-              Congratulations, {applicantName}!
+              {t("approval.congrats")}, {applicantName}!
             </h2>
             <p className="text-muted-foreground text-sm mt-2">
-              Your {loanType} has been approved
+              {t("approval.message").replace("{loanType}", loanType)}
             </p>
           </div>
         </CardHeader>
@@ -59,15 +61,15 @@ export default function SanctionLetter({
         <CardContent className="space-y-4">
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Loan Amount</span>
+              <span className="text-sm text-muted-foreground">{t("approval.amount")}</span>
               <span className="font-semibold">{amount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Interest Rate</span>
+              <span className="text-sm text-muted-foreground">{t("approval.rate")}</span>
               <span className="font-semibold">{interestRate}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Tenure</span>
+              <span className="text-sm text-muted-foreground">{t("approval.tenure")}</span>
               <span className="font-semibold">{tenure}</span>
             </div>
           </div>
@@ -75,9 +77,9 @@ export default function SanctionLetter({
           <div className="flex items-center gap-3 p-4 border border-border rounded-lg">
             <FileText className="h-6 w-6 text-primary" />
             <div className="flex-1">
-              <p className="text-sm font-medium">Sanction Letter</p>
+              <p className="text-sm font-medium">{t("approval.letter")}</p>
               <p className="text-xs text-muted-foreground">
-                Official approval document
+                {t("approval.doc")}
               </p>
             </div>
           </div>
@@ -93,7 +95,7 @@ export default function SanctionLetter({
             data-testid="button-download-sanction"
           >
             <Download className="mr-2 h-4 w-4" />
-            Download Sanction Letter
+            {t("button.download")}
           </Button>
         </CardFooter>
       </Card>

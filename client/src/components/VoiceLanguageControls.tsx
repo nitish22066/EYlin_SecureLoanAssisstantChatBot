@@ -7,18 +7,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface VoiceLanguageControlsProps {
   onVoiceToggle?: (enabled: boolean) => void;
-  onLanguageChange?: (language: string) => void;
 }
 
 export default function VoiceLanguageControls({
   onVoiceToggle,
-  onLanguageChange,
 }: VoiceLanguageControlsProps) {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [language, setLanguage] = useState("English");
+  const { language, setLanguage } = useLanguage();
 
   const languages = [
     { code: "en", name: "English", flag: "🇬🇧" },
@@ -34,10 +33,9 @@ export default function VoiceLanguageControls({
     console.log("Voice toggled:", newState);
   };
 
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang);
-    onLanguageChange?.(lang);
-    console.log("Language changed to:", lang);
+  const handleLanguageChange = (langCode: "en" | "hi" | "mr" | "te") => {
+    setLanguage(langCode);
+    console.log("Language changed to:", langCode);
   };
 
   return (
@@ -66,8 +64,9 @@ export default function VoiceLanguageControls({
           {languages.map((lang) => (
             <DropdownMenuItem
               key={lang.code}
-              onClick={() => handleLanguageChange(lang.name)}
+              onClick={() => handleLanguageChange(lang.code as "en" | "hi" | "mr" | "te")}
               data-testid={`option-language-${lang.code}`}
+              className={language === lang.code ? "bg-accent" : ""}
             >
               <span className="mr-2">{lang.flag}</span>
               {lang.name}
