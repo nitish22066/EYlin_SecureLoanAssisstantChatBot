@@ -14,90 +14,35 @@ interface Message {
 }
 
 interface ConversationPageProps {
-  loanType: "car-loan" | "education-loan" | "business-loan" | "two-wheeler-loan" | "home-improvement" | "personal-loan";
+  loanType: "car-loan" | "education-loan" | "business-loan" | "two-wheeler-loan" | "home-improvement" | "personal-loan" | "other-loan";
 }
 
-const conversationFlows: Record<string, Message[]> = {
-  "car-loan": [
-    { text: "Hi, I'm looking for a car loan.", isUser: true },
-    {
-      text: "Hi there! 🚗 That's exciting — a new ride coming up! Could you share approximately how much you're looking to borrow for your car?",
-      isUser: false,
-    },
-    { text: "Around 7 lakh rupees.", isUser: true },
-    {
-      text: "Perfect. And your monthly income range? (Just a rough number helps me find the right offer.)",
-      isUser: false,
-    },
-    { text: "Around ₹85,000 per month.", isUser: true },
-    {
-      text: "Great — that's a solid income! Let's proceed with your KYC. Please upload your PAN Card and Salary Slip (last 3 months).",
-      isUser: false,
-    },
-  ],
-  "education-loan": [
-    { text: "Hi, I want to apply for a loan for my Data Science course.", isUser: true },
-    {
-      text: "Hey! 👋 That's awesome — investing in Data Science is a great move. Which institute or course are you enrolling in?",
-      isUser: false,
-    },
-    { text: "Data Science PG Program at Great Learning.", isUser: true },
-    {
-      text: "Perfect choice — that's one of our partnered institutions! And how much is your total course fee?",
-      isUser: false,
-    },
-    { text: "Around ₹4 lakh.", isUser: true },
-    {
-      text: "Got it. Since you're applying as a student, please share your parent or guardian's monthly income.",
-      isUser: false,
-    },
-    { text: "Around ₹50,000.", isUser: true },
-    {
-      text: "Thanks! Please upload your Admission Letter and your parent's ITR or Salary Slip.",
-      isUser: false,
-    },
-  ],
-  "business-loan": [
-    { text: "Hi, I want a business loan to expand my food manufacturing unit.", isUser: true },
-    {
-      text: "That's great to hear! 🍲 Please share your business name and loan amount.",
-      isUser: false,
-    },
-    { text: "Arjun Foods Pvt. Ltd. — ₹40 lakhs.", isUser: true },
-    {
-      text: "Excellent. Please upload your Business PAN and GST Return.",
-      isUser: false,
-    },
-  ],
+const conversationStarters: Record<string, string> = {
+  "car-loan": "Hi there! 🚗 That's exciting — a new ride coming up! Could you share approximately how much you're looking to borrow for your car?",
+  "education-loan": "Hey! 👋 That's awesome — investing in Data Science is a great move. Which institute or course are you enrolling in?",
+  "business-loan": "That's great to hear! 🍲 Please share your business name and loan amount.",
+  "two-wheeler-loan": "Hi! 🛵 Looking for a two-wheeler? Great choice! What's your budget for the vehicle?",
+  "home-improvement": "Hello! 🏠 Home improvements are always exciting! What kind of renovations are you planning?",
+  "personal-loan": "Hi there! 💰 I'm here to help with your personal loan. Could you tell me what you need the loan for?",
+  "other-loan": "Hello! 💡 I'm here to help you explore our loan options. Could you tell me what kind of loan you're looking for?",
 };
 
 export default function ConversationPage({ loanType }: ConversationPageProps) {
   const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [showApproval, setShowApproval] = useState(false);
   const [userInput, setUserInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const flow = conversationFlows[loanType] || conversationFlows["car-loan"];
+  const starter = conversationStarters[loanType] || conversationStarters["other-loan"];
 
   useEffect(() => {
-    if (currentStep < flow.length) {
-      const timer = setTimeout(() => {
-        setMessages((prev) => [...prev, flow[currentStep]]);
-        setCurrentStep((prev) => prev + 1);
-
-        if (
-          flow[currentStep].text.includes("upload") ||
-          flow[currentStep].text.includes("Upload")
-        ) {
-          setTimeout(() => setShowDocUpload(true), 500);
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep, flow]);
+    const timer = setTimeout(() => {
+      setMessages([{ text: starter, isUser: false }]);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [starter]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -106,61 +51,41 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
   const handleSend = () => {
     if (!userInput.trim()) return;
 
-    setMessages((prev) => [...prev, { text: userInput, isUser: true }]);
+    const userMessage = userInput;
+    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
     setUserInput("");
 
     setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: "I only handle approved loan conversations. Please choose a valid loan type or return to the main menu.",
-          isUser: false,
-        },
-      ]);
+      const response = getEylinResponse(userMessage, loanType, messages.length);
+      setMessages((prev) => [...prev, { text: response, isUser: false }]);
+      
+      if (response.toLowerCase().includes("upload") || response.toLowerCase().includes("documents")) {
+        setTimeout(() => setShowDocUpload(true), 500);
+      }
     }, 1000);
+  };
+
+  const getEylinResponse = (userMessage: string, type: string, messageCount: number): string => {
+    const lowerMsg = userMessage.toLowerCase();
+
+    if (lowerMsg.includes("done") || lowerMsg.includes("uploaded") || lowerMsg.includes("submit")) {
+      return "Thanks, I've verified your details. 👍 Your application looks good! Let me process this and get back to you with an update shortly.";
+    }
+
+    if (messageCount <= 2) {
+      return "Perfect. And your monthly income range? (Just a rough number helps me find the right offer.)";
+    }
+    
+    if (messageCount <= 4) {
+      return "Great — that's a solid income! Let's proceed with your KYC. Please upload your required documents (PAN Card, Salary Slip, etc.).";
+    }
+
+    return "Thank you for providing that information. I'm processing your request. Is there anything else you'd like to know about this loan?";
   };
 
   const handleDocumentUpload = () => {
     setShowDocUpload(false);
-    
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { text: "Done.", isUser: true },
-      ]);
-    }, 500);
-
-    setTimeout(() => {
-      const approvalMessages: Record<string, string> = {
-        "car-loan":
-          "Thanks, I've verified your details. 👍 Your credit score looks great at 760 and you're eligible for our Car Loan Offer: ₹7,00,000 at 10.5% for 48 months. Would you like me to generate your sanction letter?",
-        "education-loan":
-          "Perfect — I've reviewed your documents. Your credit score is 720 and with stable income support, your education loan is approved 🎓 ₹4,00,000 at 11.0% for 60 months. Would you like me to generate your sanction letter?",
-        "business-loan":
-          "Thanks! Verifying… Looks like your PAN is under Arjun Food Products LLP while your GST return lists Arjun Foods Pvt. Ltd. This likely means a recent business structure change — no issue! 👍 I'll forward this to our Compliance Verification Team for manual review (usually within 24 hours).",
-      };
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: approvalMessages[loanType] || approvalMessages["car-loan"],
-          isUser: false,
-        },
-      ]);
-
-      if (loanType !== "business-loan") {
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev,
-            { text: "Yes, please.", isUser: true },
-          ]);
-
-          setTimeout(() => {
-            setShowApproval(true);
-          }, 1000);
-        }, 2000);
-      }
-    }, 1500);
+    console.log("Documents uploaded - waiting for user to continue conversation");
   };
 
   const loanTitles: Record<string, string> = {
@@ -170,6 +95,11 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
     "two-wheeler-loan": "Two-Wheeler Loan",
     "home-improvement": "Home Improvement Loan",
     "personal-loan": "Personal Loan",
+    "other-loan": "Other Loan Types",
+  };
+
+  const handleApproval = () => {
+    setShowApproval(true);
   };
 
   return (
@@ -207,19 +137,29 @@ export default function ConversationPage({ loanType }: ConversationPageProps) {
             />
           ))}
 
-          {showDocUpload && (
+          {showDocUpload && !showApproval && (
             <div className="mb-6 animate-in fade-in duration-300">
               <DocumentUpload
                 label="Upload Documents"
                 acceptedFormats={["PDF", "JPG", "PNG"]}
               />
-              <Button
-                onClick={handleDocumentUpload}
-                className="mt-4 w-full"
-                data-testid="button-submit-documents"
-              >
-                Submit Documents
-              </Button>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  onClick={handleDocumentUpload}
+                  className="flex-1"
+                  variant="outline"
+                  data-testid="button-submit-documents"
+                >
+                  Submit Documents
+                </Button>
+                <Button
+                  onClick={handleApproval}
+                  className="flex-1"
+                  data-testid="button-approve-demo"
+                >
+                  Demo Approval
+                </Button>
+              </div>
             </div>
           )}
 

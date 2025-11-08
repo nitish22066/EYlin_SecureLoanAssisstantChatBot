@@ -77,7 +77,7 @@ export default function HomePage() {
             </Badge>
             <Badge variant="secondary" className="px-4 py-2">
               <Shield className="h-3 w-3 mr-2" />
-              RAG-Verified Data
+              Advanced Security & Blockchain
             </Badge>
           </div>
         </section>

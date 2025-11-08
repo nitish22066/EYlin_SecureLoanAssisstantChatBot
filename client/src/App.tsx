@@ -36,6 +36,9 @@ function Router() {
       <Route path="/conversation/personal-loan">
         {() => <ConversationPage loanType="personal-loan" />}
       </Route>
+      <Route path="/conversation/other-loan">
+        {() => <ConversationPage loanType="other-loan" />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

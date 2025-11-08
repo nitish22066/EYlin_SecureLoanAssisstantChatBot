@@ -45,6 +45,17 @@ export default function TrackPage({ trackId }: TrackPageProps) {
       tenure: "12-60 months",
       route: "/conversation/business-loan",
     },
+    {
+      icon: "💡",
+      type: "Other Loans",
+      title: "Other Loan Types",
+      description:
+        "Explore additional loan products tailored to your specific needs and requirements.",
+      amount: "Varies",
+      interestRate: "Competitive rates",
+      tenure: "Flexible terms",
+      route: "/conversation/other-loan",
+    },
   ];
 
   const track2Loans = [
@@ -80,6 +91,17 @@ export default function TrackPage({ trackId }: TrackPageProps) {
       interestRate: "14.5% p.a.",
       tenure: "12-36 months",
       route: "/conversation/personal-loan",
+    },
+    {
+      icon: "💡",
+      type: "Other Loans",
+      title: "Other Loan Types",
+      description:
+        "Explore additional loan products tailored to your specific needs and requirements.",
+      amount: "Varies",
+      interestRate: "Competitive rates",
+      tenure: "Flexible terms",
+      route: "/conversation/other-loan",
     },
   ];
 
