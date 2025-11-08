@@ -1,5 +1,10 @@
 import VoiceLanguageControls from "../VoiceLanguageControls";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export default function VoiceLanguageControlsExample() {
-  return <VoiceLanguageControls />;
+  return (
+    <LanguageProvider>
+      <VoiceLanguageControls />
+    </LanguageProvider>
+  );
 }
