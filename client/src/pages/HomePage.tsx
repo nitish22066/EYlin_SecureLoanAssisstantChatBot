@@ -1,19 +1,55 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Mic, Globe, Shield } from "lucide-react";
+import { ArrowRight, Mic, Globe, Shield, FileText } from "lucide-react";
 import VoiceLanguageControls from "@/components/VoiceLanguageControls";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogOut, LogIn, User } from "lucide-react";
 import heroImage from "@assets/generated_images/Dual_track_banking_illustration_f80fafab.png";
 
 export default function HomePage() {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
       <VoiceLanguageControls />
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLocation("/applications")}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          My Applications
+        </Button>
+
+        {isAuthenticated ? (
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              <span>{user?.fullName}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={logout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setLocation("/login")}>
+              <LogIn className="h-4 w-4 mr-2" />
+              Login
+            </Button>
+            <Button size="sm" onClick={() => setLocation("/register")}>
+              Register
+            </Button>
+          </div>
+        )}
+      </div>
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <section className="text-center mb-12 pt-8">

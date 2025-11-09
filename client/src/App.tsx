@@ -4,41 +4,75 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import HomePage from "@/pages/HomePage";
 import TrackPage from "@/pages/TrackPage";
 import ConversationPage from "@/pages/ConversationPage";
+import ApplicationsPage from "@/pages/ApplicationsPage";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={HomePage} />
+      <Route path="/login" component={LoginPage} />
+      <Route path="/register" component={RegisterPage} />
+      <Route path="/">
+        {() => <ProtectedRoute><HomePage /></ProtectedRoute>}
+      </Route>
+      <Route path="/applications">
+        {() => <ProtectedRoute><ApplicationsPage /></ProtectedRoute>}
+      </Route>
+      <Route path="/chat/:conversationId">
+        {(params) => (
+          <ProtectedRoute>
+            <ConversationPage conversationId={params.conversationId} />
+          </ProtectedRoute>
+        )}
+      </Route>
       <Route path="/track1">
-        {() => <TrackPage trackId="track1" />}
+        {() => <ProtectedRoute><TrackPage trackId="track1" /></ProtectedRoute>}
       </Route>
       <Route path="/track2">
-        {() => <TrackPage trackId="track2" />}
+        {() => <ProtectedRoute><TrackPage trackId="track2" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/car-loan">
-        {() => <ConversationPage loanType="car-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="car-loan" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/education-loan">
-        {() => <ConversationPage loanType="education-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="education-loan" /></ProtectedRoute>}
+      </Route>
+      <Route path="/conversation/education-loan-escalation">
+        {() => <ProtectedRoute><ConversationPage loanType="education-loan-escalation" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/business-loan">
-        {() => <ConversationPage loanType="business-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="business-loan" /></ProtectedRoute>}
+      </Route>
+      <Route path="/conversation/skill-course-loan">
+        {() => <ProtectedRoute><ConversationPage loanType="skill-course-loan" /></ProtectedRoute>}
+      </Route>
+      <Route path="/conversation/rent-deposit-loan">
+        {() => <ProtectedRoute><ConversationPage loanType="rent-deposit-loan" /></ProtectedRoute>}
+      </Route>
+      <Route path="/conversation/digital-credit-loan">
+        {() => <ProtectedRoute><ConversationPage loanType="digital-credit-loan" /></ProtectedRoute>}
+      </Route>
+      <Route path="/conversation/small-business-loan">
+        {() => <ProtectedRoute><ConversationPage loanType="small-business-loan" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/two-wheeler-loan">
-        {() => <ConversationPage loanType="two-wheeler-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="two-wheeler-loan" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/home-improvement">
-        {() => <ConversationPage loanType="home-improvement" />}
+        {() => <ProtectedRoute><ConversationPage loanType="home-improvement" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/personal-loan">
-        {() => <ConversationPage loanType="personal-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="personal-loan" /></ProtectedRoute>}
       </Route>
       <Route path="/conversation/other-loan">
-        {() => <ConversationPage loanType="other-loan" />}
+        {() => <ProtectedRoute><ConversationPage loanType="other-loan" /></ProtectedRoute>}
       </Route>
       <Route component={NotFound} />
     </Switch>
@@ -48,12 +82,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </LanguageProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
