@@ -12,15 +12,11 @@
 [![Express](https://img.shields.io/badge/Express-404D59?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-[🚀 Live Demo](#demo) | [📖 Documentation](#documentation) | [🔧 Installation](#installation) | [🤝 Contributing](#contributing)
+[🚀 Live Demo](#demo) 
 
 </div>
 
 ---
-
-## 🌟 Overview
-
-**EYLIN** is a sophisticated AI-powered loan assistant that revolutionizes the traditional loan application process through intelligent conversation, automated document verification, and seamless user experience. Built with modern web technologies and enterprise-grade integrations.
 
 ### ✨ Key Features
 
@@ -263,79 +259,3 @@ npm install oso langchain ethers web3
 # Uncomment imports in server/routes.ts
 # Configure environment variables
 ```
-
-## 🎯 Roadmap
-
-### Phase 1: Core Features ✅
-- [x] Conversational AI interface
-- [x] Authentication system
-- [x] Document upload
-- [x] Application management
-
-### Phase 2: Intelligence 🔄
-- [x] Smart response system
-- [x] Escalation detection
-- [x] Verification delays
-- [ ] Machine learning integration
-
-### Phase 3: Enterprise 🔮
-- [ ] OSO authorization
-- [ ] AI document analysis
-- [ ] Blockchain records
-- [ ] Multi-tenant support
-
-### Phase 4: Scale 📈
-- [ ] Microservices architecture
-- [ ] Real-time notifications
-- [ ] Analytics dashboard
-- [ ] Mobile app
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
-```bash
-# Fork and clone the repo
-git clone https://github.com/yourusername/eylin-loan-assistant.git
-
-# Create a feature branch
-git checkout -b feature/amazing-feature
-
-# Make changes and commit
-git commit -m "Add amazing feature"
-
-# Push to the branch
-git push origin feature/amazing-feature
-
-# Open a Pull Request
-```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Radix UI** for excellent component primitives
-- **Tailwind CSS** for utility-first styling
-- **shadcn/ui** for beautiful component designs
-- **Vite** for lightning-fast development experience
-
-## 📞 Support
-
-- 📧 **Email**: support@eylin.app
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/eylin-loan-assistant/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/eylin-loan-assistant/discussions)
-
----
-
-<div align="center">
-
-**Built with ❤️ for the future of digital lending**
-
-⭐ **Star this repo** if you find it helpful!
-
-[🔝 Back to top](#-eylin---ai-powered-loan-assistant)
-
-</div>
